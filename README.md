@@ -19,35 +19,36 @@ This repository contains Terraform configuration to deploy a VLESS VPN server on
    cp terraform.tfvars.example terraform.tfvars
    ```
 
-2. Edit `terraform.tfvars` and add your Hetzner Cloud API token:
-   ```
-   hcloud_token = "your-api-token-here"
+2. Edit `terraform.tfvars` and configure:
+   - Your SSH public key
+   - Server configuration (name, type, image, location)
+   - Firewall configuration (allowed SSH IP address)
+
+3. Set the `HCLOUD_TOKEN` environment variable:
+   ```bash
+   export HCLOUD_TOKEN="your-hetzner-cloud-api-token-here"
    ```
 
-3. Initialize Terraform:
+4. Initialize Terraform:
    ```bash
    terraform init
    ```
 
-4. Review the plan:
+5. Review the plan and apply:
    ```bash
-   terraform plan
-   ```
-
-5. Apply the configuration:
-   ```bash
-   terraform apply
+   terraform plan -var="hcloud_token=$HCLOUD_TOKEN"
+   sterraform apply -var="hcloud_token=$HCLOUD_TOKEN"
    ```
 
 ## Infrastructure
 
-- **VM Type**: CX23 (2 vCPU, 4GB RAM)
-- **OS**: AlmaLinux 9
-- **Location**: Helsinki (hel1)
+- **VM Type**: CX23 (2 vCPU, 4GB RAM) - configurable via `server_type`
+- **OS**: AlmaLinux 10 - configurable via `server_image`
+- **Location**: Helsinki (hel1) - configurable via `server_location`
 - **IPv6**: Disabled
 - **Firewall Rules**:
   - Port 443: Open to all (for VLESS)
-  - Port 22: Restricted to <some_ip>/32 (SSH access)
+  - Port 22: Restricted to IP specified in `ssh_allowed_ip` variable
 
 ## Outputs
 
@@ -66,10 +67,11 @@ Terraform Cloud offers free tier with GitHub integration:
 1. Sign up at https://app.terraform.io
 2. Create an organization and workspace
 3. Connect your GitHub repository
-4. Copy `backend.tf.example` to `backend.tf` and configure:
+4. Create a `backend.tf` file and configure:
    ```hcl
    terraform {
      cloud {
+       hostname     = "app.terraform.io"
        organization = "your-organization-name"
        workspaces {
          name = "vless-server"
@@ -77,3 +79,4 @@ Terraform Cloud offers free tier with GitHub integration:
      }
    }
    ```
+5. Run `terraform login` locally to authenticate in app.terraform.io

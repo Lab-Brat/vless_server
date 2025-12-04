@@ -1,0 +1,12 @@
+# SSH Configuration
+ssh_public_key = "ssh-ed25519 ... your-public-key-here"
+
+# Server Configuration
+server_name     = "vless-server"
+server_type     = "cx23"
+server_image    = "alma-10"
+server_location = "hel1"
+
+# Firewall Configuration
+firewall_name  = "vless-firewall"
+ssh_allowed_ip = "0.0.0.0/0"
