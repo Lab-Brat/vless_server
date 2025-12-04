@@ -10,3 +10,9 @@ server_location = "hel1"
 # Firewall Configuration
 firewall_name  = "vless-firewall"
 ssh_allowed_ip = "0.0.0.0/0"
+
+# Cloudflare Configuration
+# Get your zone ID from Cloudflare dashboard or API
+cloudflare_zone_id       = "your-cloudflare-zone-id"
+cloudflare_api_token     = "your-cloudflare-api-token"
+vpn_domain_subdomain     = "vpn"

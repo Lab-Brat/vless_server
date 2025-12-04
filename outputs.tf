@@ -13,3 +13,13 @@ output "server_name" {
   description = "Name of the VLESS server"
 }
 
+output "dns_record_name" {
+  value       = cloudflare_dns_record.vpn_server.name
+  description = "DNS record name for the VPN server"
+}
+
+output "dns_record_content" {
+  value       = cloudflare_dns_record.vpn_server.content
+  description = "DNS record content (IP address)"
+}
+

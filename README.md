@@ -11,6 +11,10 @@ This repository contains Terraform configuration to deploy a VLESS VPN server on
    ```bash
    export HCLOUD_TOKEN="your-hetzner-cloud-api-token-here"
    ```
+5. Set `CF_TOKEN` environment variable:
+   ```bash
+   export CF_TOKEN="your-hetzner-cloud-api-token-here"
+   ```
 
 ## Setup
 
@@ -24,20 +28,15 @@ This repository contains Terraform configuration to deploy a VLESS VPN server on
    - Server configuration (name, type, image, location)
    - Firewall configuration (allowed SSH IP address)
 
-3. Set the `HCLOUD_TOKEN` environment variable:
-   ```bash
-   export HCLOUD_TOKEN="your-hetzner-cloud-api-token-here"
-   ```
-
-4. Initialize Terraform:
+3. Initialize Terraform:
    ```bash
    terraform init
    ```
 
-5. Review the plan and apply:
+4. Review the plan and apply:
    ```bash
-   terraform plan -var="hcloud_token=$HCLOUD_TOKEN"
-   sterraform apply -var="hcloud_token=$HCLOUD_TOKEN"
+   terraform plan -out=plan.tfplan -var="hcloud_token=$HCLOUD_TOKEN" -var="cloudflare_api_token=$CF_TOKEN"
+   sterraform apply plan.tfplan
    ```
 
 ## Infrastructure

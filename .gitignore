@@ -11,3 +11,4 @@ terraform.tfstate.backup
 *.key
 !*.pub
 
+plan.tfplan
