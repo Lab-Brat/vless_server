@@ -58,3 +58,15 @@ variable "vpn_domain_subdomain" {
   description = "Subdomain name for the VPN server (e.g., 'vpn' for vpn.example.com)"
   type        = string
 }
+
+variable "ansible_user" {
+  description = "SSH user for Ansible connections"
+  type        = string
+  default     = "root"
+}
+
+variable "ansible_ssh_private_key_path" {
+  description = "Path to the SSH private key file for Ansible"
+  type        = string
+  default     = "~/.ssh/id_ed25519"
+}

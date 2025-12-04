@@ -54,6 +54,32 @@ This repository contains Terraform configuration to deploy a VLESS VPN server on
 After deployment, Terraform will output:
 - `server_ip`: The IPv4 address of your VLESS server
 - `server_id`: The Hetzner Cloud server ID
+- `ansible_inventory_path`: Path to the generated Ansible inventory file
+
+## Ansible Configuration
+
+After running `terraform apply`, an Ansible inventory file will be automatically generated at `ansible_inventory.ini`.
+
+### Running the Test Playbook
+
+1. Ensure you have Ansible installed in a virtual environment:
+   ```bash
+   python -m venv .venv
+   soruce .venv/bin/activate
+   python -m pip install -r requirements.txt
+   ```
+
+2. Configure the SSH private key path in `terraform.tfvars` (optional, defaults to `~/.ssh/id_ed25519`):
+   ```hcl
+   ansible_ssh_private_key_path = "~/.ssh/your_private_key"
+   ```
+
+3. Run the test playbook:
+   ```bash
+   ansible-playbook -i ansible_inventory.ini ansible/playbook.yml
+   ```
+
+The test playbook will connect to the server and display basic system information to verify connectivity.
 
 ## Terraform State Storage
 
