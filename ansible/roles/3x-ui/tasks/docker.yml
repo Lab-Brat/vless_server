@@ -1,0 +1,84 @@
+---
+- name: Install required packages for Docker
+  dnf:
+    name:
+      - yum-utils
+      - device-mapper-persistent-data
+      - lvm2
+    state: present
+    update_cache: yes
+  tags:
+    - docker
+
+- name: Add Docker repository
+  yum_repository:
+    name: docker-ce
+    description: Docker CE Repository
+    baseurl: https://download.docker.com/linux/centos/{{ ansible_facts["distribution_major_version"] }}/$basearch/stable
+    gpgcheck: yes
+    gpgkey: https://download.docker.com/linux/centos/gpg
+    enabled: yes
+  tags:
+    - docker
+
+- name: Install Docker CE
+  dnf:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin
+    state: present
+    update_cache: yes
+  tags:
+    - docker
+
+- name: Start and enable Docker service
+  systemd:
+    name: docker
+    state: started
+    enabled: yes
+  tags:
+    - docker
+
+- name: Add users to docker group
+  user:
+    name: "{{ item }}"
+    groups: docker
+    append: yes
+  loop: "{{ docker_users }}"
+  when: docker_users | length > 0
+  tags:
+    - docker
+
+- name: Verify Docker installation
+  command: docker --version
+  register: docker_version
+  changed_when: false
+  tags:
+    - docker
+    - verify
+
+- name: Display Docker version
+  debug:
+    msg: "Docker installed successfully: {{ docker_version.stdout }}"
+  tags:
+    - docker
+    - verify
+
+- name: Verify Docker service is running
+  systemd:
+    name: docker
+  register: docker_service_status
+  tags:
+    - docker
+    - verify
+
+- name: Display Docker service status
+  debug:
+    msg: "Docker service is {{ docker_service_status.status.ActiveState }}"
+  tags:
+    - docker
+    - verify
+

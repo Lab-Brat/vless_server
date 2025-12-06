@@ -1,0 +1,171 @@
+---
+- name: Create 3x-ui base directory
+  file:
+    path: "{{ xui_base_path }}"
+    state: directory
+    mode: '0755'
+  tags:
+    - 3x-ui
+    - app
+
+- name: Create 3x-ui db directory
+  file:
+    path: "{{ xui_base_path }}/db"
+    state: directory
+    mode: '0755'
+  tags:
+    - 3x-ui
+    - app
+
+- name: Create 3x-ui cert directory
+  file:
+    path: "{{ xui_base_path }}/cert"
+    state: directory
+    mode: '0755'
+  tags:
+    - 3x-ui
+    - app
+
+- name: Create nginx configuration directory
+  file:
+    path: "{{ xui_base_path }}/nginx"
+    state: directory
+    mode: '0755'
+  tags:
+    - 3x-ui
+    - app
+
+- name: Create letsencrypt directory
+  file:
+    path: "{{ xui_base_path }}/letsencrypt"
+    state: directory
+    mode: '0755'
+  tags:
+    - 3x-ui
+    - app
+
+- name: Create certbot directory
+  file:
+    path: "{{ xui_base_path }}/certbot"
+    state: directory
+    mode: '0755'
+  tags:
+    - 3x-ui
+    - app
+
+- name: Get CF_TOKEN from environment if not set
+  set_fact:
+    certbot_cf_token: "{{ lookup('env', 'CF_TOKEN') | default(certbot_cf_token, true) }}"
+  tags:
+    - 3x-ui
+    - app
+
+- name: Deploy Cloudflare credentials file
+  template:
+    src: cloudflare.ini.j2
+    dest: "{{ xui_base_path }}/certbot/cloudflare.ini"
+    mode: '0600'
+  tags:
+    - 3x-ui
+    - app
+
+- name: Deploy nginx.conf
+  template:
+    src: nginx.conf.j2
+    dest: "{{ xui_base_path }}/nginx/nginx.conf"
+    mode: '0644'
+  tags:
+    - 3x-ui
+    - app
+
+- name: Deploy docker-compose.yml for 3x-ui
+  template:
+    src: docker-compose.yml.j2
+    dest: "{{ xui_base_path }}/docker-compose.yml"
+    mode: '0644'
+  tags:
+    - 3x-ui
+    - app
+
+- name: Ensure Docker Compose is available
+  command: docker compose version
+  register: docker_compose_check
+  changed_when: false
+  failed_when: false
+  tags:
+    - 3x-ui
+    - app
+
+- name: Start 3x-ui with Docker Compose
+  command: docker compose -f "{{ xui_base_path }}/docker-compose.yml" up -d
+  args:
+    chdir: "{{ xui_base_path }}"
+  tags:
+    - 3x-ui
+    - app
+
+- name: Verify 3x-ui container is running
+  command: docker ps --filter "name=3xui_app" --format "{{ '{{' }}.Status{{ '}}' }}"
+  register: xui_container_status
+  changed_when: false
+  tags:
+    - 3x-ui
+    - app
+    - verify
+
+- name: Display 3x-ui container status
+  debug:
+    msg: "3x-ui container status: {{ xui_container_status.stdout }}"
+  tags:
+    - 3x-ui
+    - app
+    - verify
+
+- name: Verify nginx container is running
+  command: docker ps --filter "name=nginx" --format "{{ '{{' }}.Status{{ '}}' }}"
+  register: nginx_container_status
+  changed_when: false
+  tags:
+    - 3x-ui
+    - app
+    - verify
+
+- name: Display nginx container status
+  debug:
+    msg: "Nginx container status: {{ nginx_container_status.stdout }}"
+  tags:
+    - 3x-ui
+    - app
+    - verify
+
+- name: Wait for certificates to be available
+  wait_for:
+    path: "{{ xui_base_path }}/letsencrypt/live/{{ certbot_domains.split(',')[0].strip() }}/fullchain.pem"
+    timeout: 300
+  ignore_errors: yes
+  tags:
+    - 3x-ui
+    - app
+    - verify
+
+- name: Verify certificate files exist
+  stat:
+    path: "{{ xui_base_path }}/letsencrypt/live/{{ certbot_domains.split(',')[0].strip() }}/{{ item }}"
+  register: cert_files
+  loop:
+    - fullchain.pem
+    - privkey.pem
+  tags:
+    - 3x-ui
+    - app
+    - verify
+
+- name: Display certificate status
+  debug:
+    msg: "Certificate {{ item.item }} exists: {{ item.stat.exists }}"
+  loop: "{{ cert_files.results }}"
+  tags:
+    - 3x-ui
+    - app
+    - verify
+

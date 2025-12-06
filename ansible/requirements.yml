@@ -1,0 +1,6 @@
+---
+# Ansible Collections
+collections:
+  - name: ttafsir.sqlite_utils
+    version: ">=1.4.0"
+

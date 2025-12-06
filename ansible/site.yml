@@ -1,0 +1,8 @@
+---
+- name: Deploy 3x-ui application
+  hosts: vless_servers
+  become: yes
+  gather_facts: yes
+
+  roles:
+    - role: 3x-ui

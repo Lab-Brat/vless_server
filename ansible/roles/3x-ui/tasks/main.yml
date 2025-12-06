@@ -1,0 +1,21 @@
+---
+- name: Include system-base tasks
+  ansible.builtin.include_tasks: system-base.yml
+  tags:
+    - system-base
+    - system
+    - base
+    - always
+
+- name: Include docker tasks
+  ansible.builtin.include_tasks: docker.yml
+  tags:
+    - docker
+    - always
+
+- name: Include 3x-ui deployment tasks
+  ansible.builtin.include_tasks: 3x-ui.yml
+  tags:
+    - 3x-ui
+    - app
+

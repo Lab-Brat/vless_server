@@ -1,0 +1,21 @@
+---
+galaxy_info:
+  author: Your Name
+  description: Ansible role to deploy 3x-ui on AlmaLinux/RHEL
+  license: MIT
+  min_ansible_version: "2.9"
+  platforms:
+    - name: EL
+      versions:
+        - "8"
+        - "9"
+        - "10"
+  galaxy_tags:
+    - 3x-ui
+    - docker
+    - container
+    - almalinux
+    - rhel
+
+dependencies: []
+

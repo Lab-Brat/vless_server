@@ -1,0 +1,26 @@
+---
+- name: Update system packages
+  dnf:
+    name: "*"
+    state: latest
+    update_cache: yes
+  tags:
+    - system-base
+    - system
+    - base
+
+- name: Install basic system packages
+  dnf:
+    name:
+      - curl
+      - wget
+      - git
+      - vim
+      - net-tools
+      - bind-utils
+    state: present
+  tags:
+    - system-base
+    - system
+    - base
+

@@ -41,6 +41,24 @@ resource "hcloud_firewall" "vless_firewall" {
     source_ips = var.firewall_allowed_ips
   }
 
+  rule {
+    description = "UI"
+    direction   = "in"
+    protocol    = "tcp"
+    port        = "6969"
+    source_ips = var.firewall_allowed_ips
+  }
+
+  rule {
+    description = "VLESS VPN"
+    direction   = "in"
+    protocol    = "tcp"
+    port        = "443"
+    source_ips  = [
+      "0.0.0.0/0"
+    ]
+  }
+
 }
 
 resource "cloudflare_dns_record" "vpn_server" {

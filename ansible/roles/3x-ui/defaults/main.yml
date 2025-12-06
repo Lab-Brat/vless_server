@@ -1,0 +1,20 @@
+---
+docker_users: []
+
+xui_image: ghcr.io/mhsanaei/3x-ui:v2.8.5
+xui_base_path: /opt/3x-ui
+xui_hostname: "name.domain.com"
+xui_vmess_aead_forced: "false"
+xui_enable_fail2ban: "true"
+
+# Nginx configuration
+nginx_image: nginx:alpine
+nginx_server_name: "name.domain.com"
+nginx_ssl_enabled: true
+
+# Certbot configuration
+certbot_image: certbot/dns-cloudflare:v5.2.1
+certbot_email: "user@email.com"
+certbot_domains: "name.domain.com"
+certbot_cf_token: ""
+

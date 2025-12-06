@@ -1,0 +1,41 @@
+services:
+  3xui:
+    image: {{ xui_image }}
+    container_name: 3xui_app
+{% if xui_hostname is defined and xui_hostname | length > 0 %}
+    hostname: {{ xui_hostname }}
+{% endif %}
+    volumes:
+      - {{ xui_base_path }}/db/:/etc/x-ui/
+      - {{ xui_base_path }}/cert/:/root/cert/
+    environment:
+      XRAY_VMESS_AEAD_FORCED: "{{ xui_vmess_aead_forced | default('false') }}"
+      XUI_ENABLE_FAIL2BAN: "{{ xui_enable_fail2ban | default('true') }}"
+    tty: true
+    network_mode: host
+    restart: unless-stopped
+
+  nginx:
+    image: {{ nginx_image }}
+    container_name: nginx
+    volumes:
+      - {{ xui_base_path }}/nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - {{ xui_base_path }}/letsencrypt:/etc/letsencrypt:ro
+      - {{ xui_base_path }}/letsencrypt/archive:/etc/letsencrypt/archive:ro
+    # Using host network mode, ports are directly accessible
+    network_mode: host
+    restart: unless-stopped
+    depends_on:
+      - 3xui
+
+  certbot:
+    image: {{ certbot_image }}
+    container_name: certbot
+    volumes:
+      - {{ xui_base_path }}/letsencrypt:/etc/letsencrypt
+      - {{ xui_base_path }}/certbot/cloudflare.ini:/etc/letsencrypt/cloudflare.ini:ro
+    environment:
+      CF_TOKEN: "{{ certbot_cf_token }}"
+    network_mode: host
+    restart: "no"
+    entrypoint: "/bin/sh -c 'trap exit 0 INT TERM; certbot certonly --dns-cloudflare --dns-cloudflare-credentials /etc/letsencrypt/cloudflare.ini --email {{ certbot_email }} --agree-tos --non-interactive --keep-until-expiring -d {{ certbot_domains }}; while :; do sleep 12h & wait $${!}; certbot renew; done'"
